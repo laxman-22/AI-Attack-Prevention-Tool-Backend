@@ -14,7 +14,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Initialize global variables
 img_tensor = None
 img_to_predict = None
-model = models.resnet34(weights=models.ResNet34_Weights.DEFAULT)
+model = models.resnet34(weights=None)  # Set weights to None initially
+model.load_state_dict(torch.load("resnet34-b627a593.pth", map_location=device))
 model = model.to(device)
 model.eval()
 
