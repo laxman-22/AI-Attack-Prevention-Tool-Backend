@@ -13,7 +13,7 @@ from model import predict
 img_tensor = None
 img_to_predict = None
 model = torchvision.models.resnet34()
-model.load_state_dict(torch.load('resnet34-b627a593.pth', weights_only=True))
+model.load_state_dict(torch.load('resnet34-b627a593.pth', map_location=torch.device('cpu')))
 model.eval()
 
 app = Flask(__name__)
