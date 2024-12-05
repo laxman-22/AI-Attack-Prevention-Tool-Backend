@@ -14,7 +14,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Initialize global variables
 img_tensor = None
 img_to_predict = None
-model = models.resnet34(weights=models.ResNet34_Weights.DEFAULT)
+model = models.resnet34(weights='DEFAULT')
 model = model.to(device)
 model.eval()
 
@@ -268,7 +268,7 @@ def generatePrediction():
     '''
     try:
         # Create a user friendly mapping
-        binary_pred, attack_pred = predict(img_to_predict)
+        binary_pred, attack_pred = predict(img_to_predict.to(device))
         attack_mapping = {
             0: "no_attack",
             1: "deepfool",

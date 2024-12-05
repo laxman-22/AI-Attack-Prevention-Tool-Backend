@@ -34,9 +34,10 @@ class FineTunedResNet50(nn.Module):
         return binary_pred, attack_pred
     
 def predict(img):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = FineTunedResNet50()
     model.load_state_dict(torch.load('imp_binary_model.pth', weights_only=True))
-
+    model.to(device)
     model.eval()
 
     with torch.no_grad():
