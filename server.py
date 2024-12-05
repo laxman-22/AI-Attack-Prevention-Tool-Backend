@@ -15,7 +15,7 @@ img_tensor = None
 img_to_predict = None
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://ai-attack-prevention-tool-website.vercel.app/"}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 def load_labels():
     with open('imagenet-simple-labels.json', 'r') as f:
@@ -44,7 +44,11 @@ def getSampleImage():
             return response, 400
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        res = jsonify({"error": str(e)})
+        response = make_response(res)
+        response.set_cookie('server', '1', samesite='None', secure=True)
+        response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
+        return response, 500 
 
 @app.route('/uploadImage', methods=['POST'])
 def uploadImage():
@@ -100,13 +104,25 @@ def preprocessImage():
         img_tensor = preprocess_image(img)
 
         if img_tensor.shape[0] > 0:
-            return jsonify({"message": "Preprocessed Successfully"}), 200
+            res = jsonify({"message": "Preprocessed Successfully"})
+            response = make_response(res)
+            response.set_cookie('server', '1', samesite='None', secure=True)
+            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
+            return response, 200
         else:
-            return jsonify({"error": "Sample not selected"}), 400
+            res = jsonify({"error": "Sample not selected"})
+            response = make_response(res)
+            response.set_cookie('server', '1', samesite='None', secure=True)
+            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
+            return response, 400
 
     except Exception as e:
         print(f"Error: {str(e)}")
-        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+        res = jsonify({"error": f"Internal server error: {str(e)}"})
+        response = make_response(res)
+        response.set_cookie('server', '1', samesite='None', secure=True)
+        response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
+        return response, 500
     
 @app.route('/attackImage', methods=['POST'])
 def attackImage():
@@ -119,7 +135,11 @@ def attackImage():
         if img_tensor.shape[0] > 0:
             if data.get('attackType') == 'No Attack':
                 img_to_predict = img_tensor
-                return jsonify({"message": "No Attack Performed"}), 200
+                res = jsonify({"message": "No Attack Performed"})
+                response = make_response(res)
+                response.set_cookie('server', '1', samesite='None', secure=True)
+                response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
+                return response, 200
             elif data.get('attackType') == "FGSM":
                 labels = list(map(str, load_labels()))
                 label_input = str(data.get('label'))
@@ -133,7 +153,13 @@ def attackImage():
                 buffered = BytesIO()
                 attacked_pil.save(buffered, format="PNG")
                 img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
-                return jsonify({"attacked_image_base64": img_base64}), 200
+                
+                res = jsonify({"attacked_image_base64": img_base64})
+                response = make_response(res)
+                response.set_cookie('server', '1', samesite='None', secure=True)
+                response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
+                
+                return response, 200
             elif data.get('attackType') == 'PGD':
                 labels = list(map(str, load_labels()))
                 label_input = str(data.get('label'))
@@ -149,7 +175,11 @@ def attackImage():
                 buffered = BytesIO()
                 attacked_pil.save(buffered, format="PNG")
                 img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
-                return jsonify({"attacked_image_base64": img_base64}), 200
+                res = jsonify({"attacked_image_base64": img_base64})
+                response = make_response(res)
+                response.set_cookie('server', '1', samesite='None', secure=True)
+                response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
+                return response, 200
             elif data.get('attackType') == "C&W":
                 labels = list(map(str, load_labels()))
                 label_input = str(data.get('label'))
