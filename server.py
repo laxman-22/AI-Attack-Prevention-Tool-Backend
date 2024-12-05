@@ -9,6 +9,7 @@ from image_attack import fgsm, pgd, cw, deep_fool, preprocess_image
 import torch
 import torchvision.models as models
 from model import predict
+import numpy as np
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Initialize global variables
@@ -282,6 +283,8 @@ def generatePrediction():
 
         # Create a user friendly mapping
         binary_pred, attack_pred = predict(img_to_predict)
+
+        binary_pred = binary_pred.item() if isinstance(binary_pred, np.ndarray) else binary_pred
         attack_mapping = {
             0: "no_attack",
             1: "deepfool",
