@@ -1,5 +1,4 @@
 import torch
-from torchvision import transforms, models
 from PIL import Image
 import torch.nn as nn
 from image_attack import fgsm, preprocess_image
