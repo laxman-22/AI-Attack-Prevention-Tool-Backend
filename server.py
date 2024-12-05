@@ -165,8 +165,7 @@ def attackImage():
                 epsilon = float(data.get('epsilon', 0.02))
                 img_tensor = img_tensor.to(device)
                 # Perform the attack
-                with torch.no_grad():
-                    attacked = fgsm(model=model, images=img_tensor, label=torch.tensor([index]), epsilon=epsilon)
+                attacked = fgsm(model=model, images=img_tensor, label=torch.tensor([index]), epsilon=epsilon)
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
                 # Save the image to make predictions on
                 img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float().to(device)
@@ -190,8 +189,7 @@ def attackImage():
                 iterations = int(data.get('iterations', 50))
                 img_tensor = img_tensor.to(device)
 
-                with torch.no_grad():
-                    attacked = pgd(model=model, images=img_tensor, label=torch.tensor([index]), epsilon=epsilon, alpha=alpha, iterations=iterations)
+                attacked = pgd(model=model, images=img_tensor, label=torch.tensor([index]), epsilon=epsilon, alpha=alpha, iterations=iterations)
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
                 
                 img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float().to(device)
@@ -214,8 +212,7 @@ def attackImage():
                 iterations = int(data.get('iterations', 50))
                 img_tensor = img_tensor.to(device)
                 
-                with torch.no_grad():
-                    attacked = cw(model=model, images=img_tensor, label=torch.tensor([index]), confidence=confidence, learning_rate=learningRate, iterations=iterations)
+                attacked = cw(model=model, images=img_tensor, label=torch.tensor([index]), confidence=confidence, learning_rate=learningRate, iterations=iterations)
                 
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
                 img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float().to(device)
