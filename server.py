@@ -15,7 +15,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 img_tensor = None
 img_to_predict = None
 model = models.resnet34(weights=None)  # Set weights to None initially
-model.load_state_dict(torch.load("resnet34-b627a593.pth", map_location=device))
+model.load_state_dict(torch.load("resnet34-b627a593.pth", weights_only=True, map_location=device))
 model = model.to(device)
 model.eval()
 
@@ -153,7 +153,7 @@ def attackImage():
         data = request.get_json()
         if img_tensor.shape[0] > 0:
             if data.get('attackType') == 'No Attack':
-                img_to_predict = img_tensor
+                img_to_predict = img_tensor.to(device)
                 res = jsonify({"message": "No Attack Performed"})
                 response = make_response(res)
                 return response, 200
@@ -167,7 +167,7 @@ def attackImage():
                 attacked = fgsm(model=model, images=img_tensor, label=torch.tensor([index]), epsilon=epsilon)
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
                 # Save the image to make predictions on
-                img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float()
+                img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float().to(device)
                 # Prepare to send the attacked image back
                 attacked_img = (attacked_img * 255).astype("uint8")
                 attacked_pil = Image.fromarray(attacked_img)
@@ -190,7 +190,7 @@ def attackImage():
                 attacked = pgd(model=model, images=img_tensor, label=torch.tensor([index]), epsilon=epsilon, alpha=alpha, iterations=iterations)
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
                 
-                img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float()
+                img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float().to(device)
                 
                 attacked_img = (attacked_img * 255).astype("uint8")
                 attacked_pil = Image.fromarray(attacked_img)
@@ -212,7 +212,7 @@ def attackImage():
                 attacked = cw(model=model, images=img_tensor, label=torch.tensor([index]), confidence=confidence, learning_rate=learningRate, iterations=iterations)
                 
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
-                img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float()
+                img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float().to(device)
                 
                 attacked_img = (attacked_img * 255).astype("uint8")
                 attacked_pil = Image.fromarray(attacked_img)
@@ -233,7 +233,7 @@ def attackImage():
                 attacked = deep_fool(model=model, images=img_tensor, label=torch.tensor([index]), overshoot=overshoot, iterations=iterations)
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
                 
-                img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float()
+                img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float().to(device)
                 
                 attacked_img = (attacked_img * 255).astype("uint8")
                 attacked_pil = Image.fromarray(attacked_img)
