@@ -14,6 +14,7 @@ from model import predict
 img_tensor = None
 img_to_predict = None
 model = models.resnet34(weights=models.ResNet34_Weights.DEFAULT)
+model = model.to(torch.device('cpu'))
 model.eval()
 
 app = Flask(__name__)
