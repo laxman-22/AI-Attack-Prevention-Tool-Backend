@@ -279,6 +279,7 @@ def generatePrediction():
             response = make_response(res)
             return response, 400
         
+        img_to_predict = img_to_predict.cpu()
         img_to_predict = img_to_predict.squeeze()
 
         # Create a user friendly mapping
