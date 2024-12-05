@@ -12,6 +12,9 @@ from model import predict
 
 img_tensor = None
 img_to_predict = None
+model = torchvision.models.resnet34()
+model.load_state_dict('resnet34-b627a593.pth')
+model.eval()
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "https://ai-attack-prevention-tool-website.vercel.app"}})
@@ -104,9 +107,7 @@ def preprocessImage():
 def attackImage():
     global img_tensor
     global img_to_predict
-    model = torchvision.models.resnet34()
-    model.load_state_dict('resnet34-b627a593.pth')
-    model.eval()
+
     try:
         data = request.get_json()
         if img_tensor.shape[0] > 0:
