@@ -14,7 +14,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Initialize global variables
 img_tensor = None
 img_to_predict = None
-model = models.resnet34(weights='DEFAULT')
+model = models.resnet34(weights='IMAGENET1K_V1')  
 model = model.to(device)
 model.eval()
 
@@ -162,6 +162,7 @@ def attackImage():
                 label_input = str(data.get('label'))
                 index = labels.index(label_input)
                 epsilon = float(data.get('epsilon', 0.02))
+                img_tensor = img_tensor.to(device)
                 # Perform the attack
                 attacked = fgsm(model=model, images=img_tensor, label=torch.tensor([index]), epsilon=epsilon)
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
@@ -185,7 +186,8 @@ def attackImage():
                 epsilon = float(data.get('epsilon', 0.02))
                 alpha = float(data.get('alpha', 0.01))
                 iterations = int(data.get('iterations', 50))
-                
+                img_tensor = img_tensor.to(device)
+
                 attacked = pgd(model=model, images=img_tensor, label=torch.tensor([index]), epsilon=epsilon, alpha=alpha, iterations=iterations)
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
                 
@@ -207,7 +209,8 @@ def attackImage():
                 confidence = float(data.get('confidence', 1))
                 learningRate = float(data.get('learningRate', 0.01))
                 iterations = int(data.get('iterations', 50))
-                
+                img_tensor = img_tensor.to(device)
+
                 attacked = cw(model=model, images=img_tensor, label=torch.tensor([index]), confidence=confidence, learning_rate=learningRate, iterations=iterations)
                 
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
@@ -228,7 +231,8 @@ def attackImage():
                 index = labels.index(label_input)
                 overshoot = float(data.get('overshoot', 0.02))
                 iterations = int(data.get('iterations', 50))
-                
+                img_tensor = img_tensor.to(device)
+
                 attacked = deep_fool(model=model, images=img_tensor, label=torch.tensor([index]), overshoot=overshoot, iterations=iterations)
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
                 
@@ -267,8 +271,12 @@ def generatePrediction():
     response (JSON): returns a JSON response to the front end
     '''
     try:
+        if img_to_predict is None:
+            res = jsonify({"error": "No image has been provided or set for prediction"})
+            response = make_response(res)
+            return response, 400
         # Create a user friendly mapping
-        binary_pred, attack_pred = predict(img_to_predict.to(device))
+        binary_pred, attack_pred = predict(img_to_predict)
         attack_mapping = {
             0: "no_attack",
             1: "deepfool",
@@ -285,7 +293,6 @@ def generatePrediction():
         response = make_response(res)
         return response, 200
     except Exception as e:
-        print(f"Error: {e}")
         res = jsonify({"error": str(e)})
         response = make_response(res)
         return response, 500

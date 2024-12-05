@@ -35,9 +35,8 @@ class FineTunedResNet50(nn.Module):
     
 def predict(img):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = FineTunedResNet50()
-    model.load_state_dict(torch.load('imp_binary_model.pth', weights_only=True))
-    model.to(device)
+    model = FineTunedResNet50().to(device)
+    model.load_state_dict(torch.load('imp_binary_model.pth', map_location=device))
     model.eval()
 
     with torch.no_grad():
