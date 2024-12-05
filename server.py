@@ -32,7 +32,7 @@ def getSampleImage():
             res = jsonify({'image': encoded_image})
             response = make_response(res)
             response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website-irakaf74w.vercel.app/")
+            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
             response.headers.add("Access-Control-Allow-Methods", "GET, POST")
             response.headers.add("Access-Control-Allow-Headers", "Content-Type")
             return response, 200
@@ -40,7 +40,7 @@ def getSampleImage():
             res = jsonify({"error": "Sample not selected"})
             response = make_response(res)
             response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website-irakaf74w.vercel.app/")
+            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
             return response, 400
 
     except Exception as e:
@@ -56,7 +56,7 @@ def uploadImage():
             res = jsonify({"error": "No file provided"})
             response = make_response(res)
             response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website-irakaf74w.vercel.app/")
+            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
             return response, 400
         try:
             if file.startswith("data:image/"):
@@ -70,21 +70,21 @@ def uploadImage():
             res = jsonify({"message": "File received and saved successfully", "filename": image_filename})
             response = make_response(res)
             response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website-irakaf74w.vercel.app/")
+            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
             return response, 200
                 
         except Exception as e:
             res = jsonify({"error": f"Error decoding or saving the image: {str(e)}"})
             response = make_response(res)
             response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website-irakaf74w.vercel.app/")
+            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
             return response, 500
         
     except Exception as e:
         res = jsonify({"error": f"An error occurred: {str(e)}"})
         response = make_response(res)
         response.set_cookie('server', '1', samesite='None', secure=True)
-        response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website-irakaf74w.vercel.app/")
+        response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
         return response, 500
     
 @app.route('/preprocessImage', methods=['POST'])
