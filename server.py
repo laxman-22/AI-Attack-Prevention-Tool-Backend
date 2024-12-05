@@ -17,7 +17,8 @@ model.load_state_dict(torch.load('resnet34-b627a593.pth', weights_only=True))
 model.eval()
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://ai-attack-prevention-tool-website.vercel.app"}})
+CORS(app, resources={r"/*": {"origins": "*"}})
+
 def load_labels():
     with open('imagenet-simple-labels.json', 'r') as f:
         return json.load(f)
@@ -230,4 +231,5 @@ def generatePrediction():
         return response, 500
     
 if __name__ == "__main__":
+    app.debug = True
     app.run(host="0.0.0.0", port=5000)
