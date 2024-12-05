@@ -15,7 +15,7 @@ img_tensor = None
 img_to_predict = None
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://ai-attack-prevention-tool-website.vercel.app/"}})
 
 def load_labels():
     with open('imagenet-simple-labels.json', 'r') as f:
