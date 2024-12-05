@@ -276,6 +276,10 @@ def generatePrediction():
             res = jsonify({"error": "No image has been provided or set for prediction"})
             response = make_response(res)
             return response, 400
+        print(img_to_predict.shape)
+        if len(img_to_predict.shape) == 3:
+            img_to_predict = img_to_predict.unsqueeze(0)
+
         # Create a user friendly mapping
         binary_pred, attack_pred = predict(img_to_predict)
         attack_mapping = {
