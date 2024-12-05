@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, make_response
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import base64
 import os
 import json
@@ -23,6 +23,7 @@ def load_labels():
         return json.load(f)
 
 @app.route('/getSampleImage', methods=['GET'])
+@cross_origin(origins="https://ai-attack-prevention-tool-website.vercel.app")
 def getSampleImage():
     try:
         isSampleSelected = request.args.get('sampleSelected', type=bool)
@@ -44,6 +45,7 @@ def getSampleImage():
         return response, 500 
 
 @app.route('/uploadImage', methods=['POST'])
+@cross_origin(origins="https://ai-attack-prevention-tool-website.vercel.app")
 def uploadImage():
     try:
         data = request.get_json()
@@ -77,6 +79,7 @@ def uploadImage():
         return response, 500
     
 @app.route('/preprocessImage', methods=['POST'])
+@cross_origin(origins="https://ai-attack-prevention-tool-website.vercel.app")
 def preprocessImage():
     global img_tensor
     try:
@@ -104,6 +107,7 @@ def preprocessImage():
         return response, 500
     
 @app.route('/attackImage', methods=['POST'])
+@cross_origin(origins="https://ai-attack-prevention-tool-website.vercel.app")
 def attackImage():
     global img_tensor
     global img_to_predict
@@ -202,6 +206,7 @@ def attackImage():
         return response, 500
 
 @app.route('/generatePrediction', methods=['GET'])
+@cross_origin(origins="https://ai-attack-prevention-tool-website.vercel.app")
 def generatePrediction():
     try:
         binary_pred, attack_pred = predict(img_to_predict)
