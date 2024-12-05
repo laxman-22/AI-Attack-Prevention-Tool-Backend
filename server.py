@@ -75,6 +75,7 @@ def uploadImage():
             response = make_response(res)
             return response, 400
         try:
+            # Decode the base64 encoded image to save it
             if file.startswith("data:image/"):
                 file = file.split(",")[1]
             img_data = base64.b64decode(file)
@@ -109,13 +110,16 @@ def preprocessImage():
     global img_tensor
     try:
         isSampleSelected = request.args.get('sampleSelected', 'false').lower() == 'true'
+        # Select image based on whether or not the user selected the sample
         if isSampleSelected:
             img = Image.open('goldfish.JPG').convert("RGB")
         else:
             img = Image.open('uploads/image_1.jpg').convert("RGB")
 
+        # Preprocess the image
         img_tensor = preprocess_image(img)
 
+        # Return an appropriate response
         if img_tensor.shape[0] > 0:
             res = jsonify({"message": "Preprocessed Successfully"})
             response = make_response(res)
@@ -151,19 +155,23 @@ def attackImage():
                 response = make_response(res)
                 return response, 200
             elif data.get('attackType') == "FGSM":
+                # Ensure correct types
                 labels = list(map(str, load_labels()))
                 label_input = str(data.get('label'))
                 index = labels.index(label_input)
                 epsilon = float(data.get('epsilon', 0.02))
+                # Perform the attack
                 attacked = fgsm(model=model, images=img_tensor, label=torch.tensor([index]), epsilon=epsilon)
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
+                # Save the image to make predictions on
                 img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float()
+                # Prepare to send the attacked image back
                 attacked_img = (attacked_img * 255).astype("uint8")
                 attacked_pil = Image.fromarray(attacked_img)
                 buffered = BytesIO()
                 attacked_pil.save(buffered, format="PNG")
                 img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
-                
+                # Return a response
                 res = jsonify({"attacked_image_base64": img_base64})
                 response = make_response(res)
                 
@@ -175,14 +183,18 @@ def attackImage():
                 epsilon = float(data.get('epsilon', 0.02))
                 alpha = float(data.get('alpha', 0.01))
                 iterations = int(data.get('iterations', 50))
+                
                 attacked = pgd(model=model, images=img_tensor, label=torch.tensor([index]), epsilon=epsilon, alpha=alpha, iterations=iterations)
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
+                
                 img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float()
+                
                 attacked_img = (attacked_img * 255).astype("uint8")
                 attacked_pil = Image.fromarray(attacked_img)
                 buffered = BytesIO()
                 attacked_pil.save(buffered, format="PNG")
                 img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+                
                 res = jsonify({"attacked_image_base64": img_base64})
                 response = make_response(res)
                 return response, 200
@@ -193,14 +205,18 @@ def attackImage():
                 confidence = float(data.get('confidence', 1))
                 learningRate = float(data.get('learningRate', 0.01))
                 iterations = int(data.get('iterations', 50))
+                
                 attacked = cw(model=model, images=img_tensor, label=torch.tensor([index]), confidence=confidence, learning_rate=learningRate, iterations=iterations)
+                
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
                 img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float()
+                
                 attacked_img = (attacked_img * 255).astype("uint8")
                 attacked_pil = Image.fromarray(attacked_img)
                 buffered = BytesIO()
                 attacked_pil.save(buffered, format="PNG")
                 img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+                
                 res = jsonify({"attacked_image_base64": img_base64})
                 response = make_response(res)
                 return response, 200
@@ -210,14 +226,18 @@ def attackImage():
                 index = labels.index(label_input)
                 overshoot = float(data.get('overshoot', 0.02))
                 iterations = int(data.get('iterations', 50))
+                
                 attacked = deep_fool(model=model, images=img_tensor, label=torch.tensor([index]), overshoot=overshoot, iterations=iterations)
                 attacked_img = attacked.squeeze().permute(1, 2, 0).cpu().detach().numpy()
+                
                 img_to_predict = torch.from_numpy(attacked_img).permute(2, 0, 1).unsqueeze(0).float()
+                
                 attacked_img = (attacked_img * 255).astype("uint8")
                 attacked_pil = Image.fromarray(attacked_img)
                 buffered = BytesIO()
                 attacked_pil.save(buffered, format="PNG")
                 img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+                
                 res = jsonify({"attacked_image_base64": img_base64})
                 response = make_response(res)
                 return response, 200
@@ -245,6 +265,7 @@ def generatePrediction():
     response (JSON): returns a JSON response to the front end
     '''
     try:
+        # Create a user friendly mapping
         binary_pred, attack_pred = predict(img_to_predict)
         attack_mapping = {
             0: "no_attack",
@@ -257,6 +278,7 @@ def generatePrediction():
         print(f"Binary prediction (0 = clean, 1 = attacked): {binary_pred}")
         print(f"Attack prediction (0 = no_attack, 1 = deepfool, 2 = fgsm, 3 = pgd, 4 = cw): {attack_type}")
         
+        # Return response
         res = jsonify({"isClean": binary_pred, "attackType": attack_type})
         response = make_response(res)
         return response, 200
