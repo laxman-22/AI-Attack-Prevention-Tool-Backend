@@ -6,26 +6,38 @@ import json
 from PIL import Image
 from io import BytesIO
 from image_attack import fgsm, pgd, cw, deep_fool, preprocess_image
-import torchvision
 import torch
+import torchvision.models as models
 from model import predict
 
+# Initialize global variables
 img_tensor = None
 img_to_predict = None
-model = torchvision.models.resnet34()
-model.load_state_dict(torch.load('resnet34-b627a593.pth', map_location=torch.device('cpu')))
+model = models.resnet34(weights=models.ResNet34_Weights.DEFAULT)
 model.eval()
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 def load_labels():
+    '''
+    This function loads the imagenet labels in order to perform attacks
+    
+    Returns:
+    json.load(f) (JSON): the json result of laoding the file
+    '''
     with open('imagenet-simple-labels.json', 'r') as f:
         return json.load(f)
 
 @app.route('/getSampleImage', methods=['GET'])
 @cross_origin(origins="https://ai-attack-prevention-tool-website.vercel.app")
 def getSampleImage():
+    '''
+    This function returns the sample goldfish image in case users don't want to upload their own image
+
+    Returns:
+    response (JSON): returns a JSON response to the front end
+    '''
     try:
         isSampleSelected = request.args.get('sampleSelected', type=bool)
 
@@ -48,6 +60,12 @@ def getSampleImage():
 @app.route('/uploadImage', methods=['POST'])
 @cross_origin(origins="https://ai-attack-prevention-tool-website.vercel.app")
 def uploadImage():
+    '''
+    This function uploads the user submitted image to the server so actions can be performed on it
+
+    Returns:
+    response (JSON): returns a JSON response to the front end
+    '''
     try:
         data = request.get_json()
         file = data.get('file')
@@ -82,6 +100,12 @@ def uploadImage():
 @app.route('/preprocessImage', methods=['POST'])
 @cross_origin(origins="https://ai-attack-prevention-tool-website.vercel.app")
 def preprocessImage():
+    '''
+    This function performs any pre processing required before attacking the image
+
+    Returns:
+    response (JSON): returns a JSON response to the front end
+    '''
     global img_tensor
     try:
         isSampleSelected = request.args.get('sampleSelected', 'false').lower() == 'true'
@@ -110,6 +134,11 @@ def preprocessImage():
 @app.route('/attackImage', methods=['POST'])
 @cross_origin(origins="https://ai-attack-prevention-tool-website.vercel.app")
 def attackImage():
+    '''
+    This function performs the attacks based on attack type provided by the front-end
+    Returns:
+    response (JSON): returns a JSON response to the front-end
+    '''
     global img_tensor
     global img_to_predict
 
@@ -209,6 +238,12 @@ def attackImage():
 @app.route('/generatePrediction', methods=['GET'])
 @cross_origin(origins="https://ai-attack-prevention-tool-website.vercel.app")
 def generatePrediction():
+    '''
+    This function generates the predictions for the attacked image
+
+    Returns:
+    response (JSON): returns a JSON response to the front end
+    '''
     try:
         binary_pred, attack_pred = predict(img_to_predict)
         attack_mapping = {
