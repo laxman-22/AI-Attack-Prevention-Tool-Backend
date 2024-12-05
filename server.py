@@ -15,8 +15,7 @@ img_tensor = None
 img_to_predict = None
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
-
+CORS(app, resources={r"/*": {"origins": "https://ai-attack-prevention-tool-website.vercel.app"}})
 def load_labels():
     with open('imagenet-simple-labels.json', 'r') as f:
         return json.load(f)
@@ -31,23 +30,15 @@ def getSampleImage():
                 encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
             res = jsonify({'image': encoded_image})
             response = make_response(res)
-            response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
-            response.headers.add("Access-Control-Allow-Methods", "GET, POST")
-            response.headers.add("Access-Control-Allow-Headers", "Content-Type")
             return response, 200
         else:
             res = jsonify({"error": "Sample not selected"})
             response = make_response(res)
-            response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
             return response, 400
 
     except Exception as e:
         res = jsonify({"error": str(e)})
         response = make_response(res)
-        response.set_cookie('server', '1', samesite='None', secure=True)
-        response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
         return response, 500 
 
 @app.route('/uploadImage', methods=['POST'])
@@ -59,8 +50,6 @@ def uploadImage():
         if not file:
             res = jsonify({"error": "No file provided"})
             response = make_response(res)
-            response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
             return response, 400
         try:
             if file.startswith("data:image/"):
@@ -73,22 +62,16 @@ def uploadImage():
             
             res = jsonify({"message": "File received and saved successfully", "filename": image_filename})
             response = make_response(res)
-            response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
             return response, 200
                 
         except Exception as e:
             res = jsonify({"error": f"Error decoding or saving the image: {str(e)}"})
             response = make_response(res)
-            response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
             return response, 500
         
     except Exception as e:
         res = jsonify({"error": f"An error occurred: {str(e)}"})
         response = make_response(res)
-        response.set_cookie('server', '1', samesite='None', secure=True)
-        response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
         return response, 500
     
 @app.route('/preprocessImage', methods=['POST'])
@@ -106,22 +89,16 @@ def preprocessImage():
         if img_tensor.shape[0] > 0:
             res = jsonify({"message": "Preprocessed Successfully"})
             response = make_response(res)
-            response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
             return response, 200
         else:
             res = jsonify({"error": "Sample not selected"})
             response = make_response(res)
-            response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
             return response, 400
 
     except Exception as e:
         print(f"Error: {str(e)}")
         res = jsonify({"error": f"Internal server error: {str(e)}"})
         response = make_response(res)
-        response.set_cookie('server', '1', samesite='None', secure=True)
-        response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
         return response, 500
     
 @app.route('/attackImage', methods=['POST'])
@@ -137,8 +114,6 @@ def attackImage():
                 img_to_predict = img_tensor
                 res = jsonify({"message": "No Attack Performed"})
                 response = make_response(res)
-                response.set_cookie('server', '1', samesite='None', secure=True)
-                response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
                 return response, 200
             elif data.get('attackType') == "FGSM":
                 labels = list(map(str, load_labels()))
@@ -156,8 +131,6 @@ def attackImage():
                 
                 res = jsonify({"attacked_image_base64": img_base64})
                 response = make_response(res)
-                response.set_cookie('server', '1', samesite='None', secure=True)
-                response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
                 
                 return response, 200
             elif data.get('attackType') == 'PGD':
@@ -177,8 +150,6 @@ def attackImage():
                 img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
                 res = jsonify({"attacked_image_base64": img_base64})
                 response = make_response(res)
-                response.set_cookie('server', '1', samesite='None', secure=True)
-                response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
                 return response, 200
             elif data.get('attackType') == "C&W":
                 labels = list(map(str, load_labels()))
@@ -197,8 +168,6 @@ def attackImage():
                 img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
                 res = jsonify({"attacked_image_base64": img_base64})
                 response = make_response(res)
-                response.set_cookie('server', '1', samesite='None', secure=True)
-                response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
                 return response, 200
             elif data.get('attackType') == 'DeepFool':
                 labels = list(map(str, load_labels()))
@@ -216,27 +185,19 @@ def attackImage():
                 img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
                 res = jsonify({"attacked_image_base64": img_base64})
                 response = make_response(res)
-                response.set_cookie('server', '1', samesite='None', secure=True)
-                response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
                 return response, 200
             else: 
                 res = jsonify({"error": "Unknown Attack Type"})
                 response = make_response(res)
-                response.set_cookie('server', '1', samesite='None', secure=True)
-                response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
                 return response, 400
         else:
             res = jsonify({"error": "Sample not selected"})
             response = make_response(res)
-            response.set_cookie('server', '1', samesite='None', secure=True)
-            response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
             return response, 400
 
     except Exception as e:
         res = jsonify({"error": str(e)})
         response = make_response(res)
-        response.set_cookie('server', '1', samesite='None', secure=True)
-        response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
         return response, 500
 
 @app.route('/generatePrediction', methods=['GET'])
@@ -256,14 +217,10 @@ def generatePrediction():
         
         res = jsonify({"isClean": binary_pred, "attackType": attack_type})
         response = make_response(res)
-        response.set_cookie('server', '1', samesite='None', secure=True)
-        response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
         return response, 200
     except Exception as e:
         res = jsonify({"error": str(e)})
         response = make_response(res)
-        response.set_cookie('server', '1', samesite='None', secure=True)
-        response.headers.add("Access-Control-Allow-Origin", "https://ai-attack-prevention-tool-website.vercel.app/")
         return response, 500
     
 if __name__ == "__main__":
