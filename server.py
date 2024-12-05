@@ -271,6 +271,7 @@ def generatePrediction():
     Returns:
     response (JSON): returns a JSON response to the front end
     '''
+    global img_to_predict
     try:
         if img_to_predict is None:
             res = jsonify({"error": "No image has been provided or set for prediction"})
