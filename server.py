@@ -6,7 +6,6 @@ import json
 from PIL import Image
 from io import BytesIO
 from image_attack import fgsm, pgd, cw, deep_fool, preprocess_image
-from torchvision.models.resnet import ResNet34_Weights
 import torchvision
 import torch
 from model import predict
@@ -105,7 +104,8 @@ def preprocessImage():
 def attackImage():
     global img_tensor
     global img_to_predict
-    model = torchvision.models.resnet34(weights=ResNet34_Weights.DEFAULT)
+    model = torchvision.models.resnet34()
+    model.load_state_dict('resnet34-b627a593.pth')
     model.eval()
     try:
         data = request.get_json()
